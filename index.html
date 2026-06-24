@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Lista de Deseos & Billetera</title>
+    <style>
+        /* --- PALETA DE COLORES MASCULINA / MINIMALISTA OSCURA --- */
+        :root {
+            --bg-color: #1E222B; /* Gris oscuro / Azul noche de fondo */
+            --card-bg: #282C34; /* Gris más claro para las tarjetas */
+            --accent-color: #4B6F96; /* Azul acero / denim para detalles */
+            --accent-hover: #3B597A;
+            --item-bg: #2F343F; /* Fondo para los deseos individuales */
+            --text-main: #E2E8F0; /* Texto claro muy legible */
+            --text-muted: #94A3B8; /* Texto secundario apagado */
+            --border-radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            color: var(--text-main);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        /* --- BILLETERA --- */
+        .wallet-card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 3px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .wallet-card {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .wallet-item h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            color: var(--text-muted);
+        }
+
+        .wallet-item .amount {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+
+        .wallet-item input {
+            font-size: 1.2rem;
+            font-weight: bold;
+            width: 100%;
+            max-width: 130px;
+            text-align: center;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: var(--item-bg);
+            outline: none;
+            padding: 5px;
+            color: #FFFFFF;
+        }
+
+        .negative {
+            color: #EF4444 !important;
+        }
+
+        /* --- PANEL DE ENTRADA --- */
+        .panel {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .wishlist-form {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .wishlist-form input[name="link"] {
+            grid-column: span 3;
+        }
+
+        .wishlist-form button {
+            grid-column: span 3;
+        }
+
+        input, select, button {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #3E4451;
+            background: var(--item-bg);
+            font-size: 0.95rem;
+            outline: none;
+            color: #FFFFFF;
+        }
+
+        input::placeholder {
+            color: #7C8596;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        button.btn-add {
+            background-color: var(--accent-color);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            color: white;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        button.btn-add:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* --- LISTADO DE ARTÍCULOS --- */
+        .wish-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .wish-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: var(--item-bg);
+            border-radius: 10px;
+            gap: 15px;
+            transition: opacity 0.2s;
+            border-left: 4px solid #4B5563;
+        }
+
+        .wish-item.bought {
+            opacity: 0.25;
+            background: #242731;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .wish-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .wish-title {
+            font-weight: 500;
+            font-size: 1.05rem;
+            color: #FFFFFF;
+        }
+
+        .wish-price {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge.Urgente { background: #7F1D1D; color: #FCA5A5; }
+        .badge.Importante { background: #78350F; color: #FDE68A; }
+        .badge.Capricho { background: #14532D; color: #A7F3D0; }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-link {
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .btn-link:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .btn-delete:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>⚡ Mi Lista de Deseos & Billetera ⚡</h1>
+        </header>
+
+        <div class="wallet-card">
+            <div class="wallet-item">
+                <h3>💵 Mi Saldo Actual</h3>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                    <span style="color: #FFFFFF;">$</span>
+                    <input type="number" id="balanceInput" value="100000" onchange="calculateWallet()">
+                </div>
+            </div>
+            <div class="wallet-item">
+                <h3>🔥 Total Urgentes</h3>
+                <div class="amount" id="committedAmount">$0</div>
+            </div>
+            <div class="wallet-item">
+                <h3>✨ Saldo Restante</h3>
+                <div class="amount" id="remainingBalance">$100.000</div>
+            </div>
+            <div class="wallet-item">
+                <h3>💰 Total de la Lista</h3>
+                <div class="amount" id="totalWishlistAmount">$0</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="wishlist-form">
+                <input type="text" id="wishTitle" placeholder="¿Qué quieres comprar? (Ej: Monitor gamer, Zapatillas)">
+                <input type="number" id="wishPrice" placeholder="Precio en CLP ($)">
+                
+                <select id="wishPriority">
+                    <option value="Urgente">Urgente 🔥</option>
+                    <option value="Importante">Importante ⚡</option>
+                    <option value="Capricho">Capricho 💎</option>
+                </select>
+                
+                <input type="text" id="wishLink" placeholder="Link de AliExpress, Amazon o tienda (opcional)">
+                <button class="btn-add" onclick="addWishItem()">Añadir a mi Lista</button>
+            </div>
+
+            <div class="wish-list" id="wishList">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // Claves independientes para no interferir con tu lista
+        let wishes = JSON.parse(localStorage.getItem('wishes_masc')) || [];
+        document.getElementById('balanceInput').value = localStorage.getItem('userBalance_masc') || 100000;
+
+        function saveToLocalStorage() {
+            localStorage.setItem('wishes_masc', JSON.stringify(wishes));
+            localStorage.setItem('userBalance_masc', document.getElementById('balanceInput').value);
+        }
+
+        function formatCLP(value) {
+            return Number(value).toLocaleString('es-CL');
+        }
+
+        function renderWishes() {
+            const list = document.getElementById('wishList');
+            list.innerHTML = '';
+            
+            wishes.forEach((wish, index) => {
+                const div = document.createElement('div');
+                div.className = `wish-item ${wish.bought ? 'bought' : ''}`;
+                
+                let linkBtn = wish.link ? `<a href="${wish.link}" target="_blank" class="btn-link" title="Ir a la tienda">🛒</a>` : '';
+                
+                div.innerHTML = `
+                    <div class="checkbox-container">
+                        <input type="checkbox" ${wish.bought ? 'checked' : ''} onclick="toggleWishBought(${index})">
+                    </div>
+                    <div class="wish-details">
+                        <span class="wish-title">${wish.title}</span>
+                        <span class="wish-price">$${formatCLP(wish.price)} CLP</span>
+                    </div>
+                    <span class="badge ${wish.priority}">${wish.priority}</span>
+                    <div class="actions">
+                        ${linkBtn}
+                        <button class="btn-delete" onclick="deleteWish(${index})" title="Eliminar">🗑️</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            calculateWallet();
+        }
+
+        function addWishItem() {
+            const title = document.getElementById('wishTitle').value;
+            const price = document.getElementById('wishPrice').value;
+            const priority = document.getElementById('wishPriority').value;
+            const link = document.getElementById('wishLink').value;
+
+            if (!title || !price) return alert("Por favor, escribe el nombre y el precio del deseo.");
+
+            wishes.push({ title, price: Number(price), priority, link, bought: false });
+            
+            document.getElementById('wishTitle').value = '';
+            document.getElementById('wishPrice').value = '';
+            document.getElementById('wishLink').value = '';
+
+            saveToLocalStorage();
+            renderWishes();
+        }
+
+        function toggleWishBought(index) {
+            wishes[index].bought = !wishes[index].bought;
+            saveToLocalStorage();
+            renderWishes();
+        }
+
+        function deleteWish(index) {
+            wishes.splice(index, 1);
+            saveToLocalStorage();
+            renderWishes();
+        }
+
+        function calculateWallet() {
+            const balance = Number(document.getElementById('balanceInput').value);
+            
+            const committed = wishes.reduce((sum, wish) => {
+                if (wish.priority === 'Urgente' && !wish.bought) {
+                    return sum + wish.price;
+                }
+                return sum;
+            }, 0);
+
+            const totalWishlist = wishes.reduce((sum, wish) => {
+                if (!wish.bought) {
+                    return sum + wish.price;
+                }
+                return sum;
+            }, 0);
+
+            const remaining = balance - committed;
+
+            document.getElementById('committedAmount').innerText = `$${formatCLP(committed)}`;
+            document.getElementById('totalWishlistAmount').innerText = `$${formatCLP(totalWishlist)}`;
+            
+            const remainingDiv = document.getElementById('remainingBalance');
+            remainingDiv.innerText = `$${formatCLP(remaining)}`;
+
+            if (remaining < 0) {
+                remainingDiv.classList.add('negative');
+            } else {
+                remainingDiv.classList.remove('negative');
+            }
+            localStorage.setItem('userBalance_masc', balance);
+        }
+
+        renderWishes();
+    </script>
+</body>
+</html>
